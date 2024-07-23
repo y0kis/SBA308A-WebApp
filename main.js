@@ -1,22 +1,37 @@
-const API_KEY = 'live_lerCSEIZ0YD5L4XzzaEDq0DvnFImzX4o4mcELQ6Qd7TBCjkbWOm1q1iaY9sEYN8J';
-const BASE_API_URL ='https://api.thecatapi.com/v1/images/search';
 
-const catButton1 = document.getElementById('cat-button-1');
-const catButton2 = document.getElementById('cat-Button-2');
+//main.js
 
-function getRandomCat() {
-    const API_KEY = 'ive_lerCSEIZ0YD5L4XzzaEDq0DvnFImzX4o4mcELQ6Qd7TBCjkbWOm1q1iaY9sEYN8J';
-    const url = 'ttps://api.thecatapi.com/v1/images/search';
-    return fetct (url)
-    .then(response => response.jason())
-    .then (data => data.text); 
-}
+import { fetchCocktail } from './api.js';
+import { renderCocktail, displayError, createCocktail, updateCocktail, deleteCocktail } from './dom.js';
 
-async function getTwoCats() {
-    const[cat1, cat2] = await Promise.all ([getRandomCat(), getRandomCat()]);
-    catButton1.textContent = cat1;
-    catButton2.textContent = cat2;
-}
+document.addEventListener('DOMContentLoaded', () => {
+    const cocktailContainer = document.getElementById('cocktail-container');
+    const createButton = document.getElementById('create-cocktail');
+    const updateButton = document.getElementById('update-cocktail');
+    const deleteButton = document.getElementById('delete-cocktail');
 
-getTwoCats();
+    let cocktails = [];
+    let currentCocktail = null;
+
+    const loadCocktail = async () => {
+        try {
+            const cocktail = await fetchCocktail();
+            currentCocktail = cocktail;
+            const cocktailImage = renderCocktail(cocktailContainer, cocktail);
+            cocktailImage.addEventListener('click', loadCocktail);
+        } catch (error) {
+            displayError(cocktailContainer, 'Sorry, we couldn\'t load a cocktail at this time.');
+        }
+    };
+
+    // Initial fetch
+    loadCocktail();
+
+    // Event listeners for buttons
+    createButton.addEventListener('click', () => createCocktail(cocktails));
+    updateButton.addEventListener('click', () => updateCocktail(currentCocktail));
+    deleteButton.addEventListener('click', () => {
+        cocktails = deleteCocktail(cocktails, currentCocktail, cocktailContainer);
+    });
+});
 
